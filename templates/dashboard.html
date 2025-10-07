@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ css_version }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+</head>
+<body class="dashboard-page page-bg">
+  <header class="main-header d-flex align-items-center justify-content-center gap-3">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">
+    <h3 class="m-0">User Dashboard</h3>
+  </header>
+  <section class="welcome-banner py-5 mt-5">
+    <div class="container">
+      <div class="welcome-box mx-auto text-center">
+        <h2 class="fw-semibold mb-2 text-white">Welcome, {{ user }}</h2>
+        <p class="text-light m-0">You can register new complaints or track existing ones from here.</p>
+      </div>
+    </div>
+  </section>
+  <section class="container my-5">
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-5 col-lg-4">
+        <div class="dashboard-card text-center p-4">
+          <i class="bi bi-pencil-square display-4 text-primary mb-3"></i>
+          <h5 class="text-white">Submit Complaint</h5>
+          <p class="text-light">Raise a new issue or problem you're facing by submitting a new complaint</p>
+          <a href="/new-complaint" class="btn btn-outline-light w-100">Submit Now</a>
+        </div>
+      </div>
+      <div class="col-md-5 col-lg-4">
+        <div class="dashboard-card text-center p-4">
+          <i class="bi bi-clipboard-data display-4 text-success mb-3"></i>
+          <h5 class="text-white">Track Complaints</h5>
+          <p class="text-light">View status of your previously submitted complaints.</p>
+          <a href="/track" class="btn btn-outline-light w-100">Track</a>
+        </div>
+      </div>
+      <div class="col-10 mt-4 text-center">
+        <a href="/logout" class="btn btn-danger px-4">
+          <i class="bi bi-box-arrow-right me-2"></i> Logout
+        </a>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
