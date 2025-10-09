@@ -56,11 +56,10 @@ def dashboard():
     css_version = int(os.path.getmtime(css_path)) if os.path.exists(css_path) else 0
     return render_template("dashboard.html", user=session["user"], css_version=css_version)
 
-# make now() available in all templates
 @app.context_processor
 def inject_now():
     return {"now": datetime.utcnow}
 
-# ========== Run ==========
+#Run 
 if __name__ == "__main__":
     app.run(debug=True)
