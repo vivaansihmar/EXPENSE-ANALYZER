@@ -13,14 +13,16 @@
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">
     <h3 class="m-0">Expense Manager Dashboard</h3>
   </header>
-  <section class="welcome-banner mt-5">
-    <div class="container">
-      <div class="welcome-box text-center">
-        <h2 class="fw-semibold mb-2 text-white">Welcome, {{ user }}</h2>
-        <p class="text-light m-0">Track your expenses or add new entries easily below.</p>
-      </div>
+<section class="welcome-banner mt-5">
+  <div class="container">
+    <div class="welcome-box text-center">
+      <h2 class="fw-semibold mb-2 text-white">Welcome, {{ user.username }}</h2>
+      <p class="text-light m-0">
+        Track your expenses or add new entries easily below.
+      </p>
     </div>
-  </section>
+  </div>
+</section>
   <section class="container my-5">
     <div class="grid">
       <div class="dashboard-card">

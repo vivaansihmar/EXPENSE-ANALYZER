@@ -12,7 +12,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SESSION_COOKIE_SECURE"] = False
-
 Session(app)
 bcrypt = Bcrypt(app)
 client = MongoClient("mongodb://localhost:27017")
@@ -31,20 +30,40 @@ def auth():
         password = request.form.get("password")
 
         if form_type == "register":
+            username = request.form.get("username").strip()
+
             if users_collection.find_one({"email": email}):
-                return " User already exists. Please login."
+                return "User already exists. Please login."
+
+            if users_collection.find_one({"username": username}):
+                return "Username already taken. Please choose another."
+
             hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
-            users_collection.insert_one({"email": email, "password": hashed_pw})
-            session["user"] = email
+
+            users_collection.insert_one({
+                "username": username,
+                "email": email,
+                "password": hashed_pw
+            })
+
+            session["user"] = {
+                "email": email,
+                "username": username
+            }
+
             return redirect("/dashboard")
 
         elif form_type == "login":
             user = users_collection.find_one({"email": email})
             if user and bcrypt.check_password_hash(user["password"], password):
-                session["user"] = email
+                session["user"] = {
+                    "email": user["email"],
+                    "username": user["username"]
+                }
                 return redirect("/dashboard")
             else:
-                return " Invalid email or password"
+                return "Invalid email or password"
+
     return render_template("auth.html")
 
 

@@ -16,13 +16,9 @@
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Expense Manager Logo" class="logo-img">
     <h3 class="m-0">Expense Manager</h3>
   </header>
-
-  <!-- MAIN AUTH FORM -->
   <main class="auth-page">
     <div class="auth-container" role="main" aria-labelledby="formTitle">
       <h3 class="form-title" id="formTitle">Login</h3>
-
-      <!-- Flash messages -->
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           <div class="mb-3">
@@ -43,7 +39,13 @@
             <input id="email" type="email" name="email" class="form-control" placeholder="Email" required autocomplete="email">
           </div>
         </div>
-
+        <div class="mb-3">
+          <label for="username" class="form-label visually-hidden">Username</label>
+          <div class="input-group" role="group" aria-label="username">
+            <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+            <input id="username" type="text" name="username" class="form-control" placeholder="Username" required autocomplete="username">
+          </div>
+        </div>
         <div class="mb-3">
           <label for="password" class="form-label visually-hidden">Password</label>
           <div class="input-group" role="group" aria-label="password">
@@ -51,14 +53,11 @@
             <input id="password" type="password" name="password" class="form-control" placeholder="Password" required autocomplete="current-password" minlength="6">
           </div>
         </div>
-
-        <!-- Submit -->
+        
         <button type="submit" id="submitBtn" class="btn btn-primary btn-lg w-100 mb-2">
           Login
         </button>
       </form>
-
-      <!-- Toggle between login/register -->
       <div class="form-switch text-center mt-3">
         <span id="switchText">Don’t have an account?</span>
         <a href="#" id="switchLink" class="btn btn-outline-light ms-2">Register</a>
