@@ -24,31 +24,39 @@
   </div>
 </section>
   <section class="container my-5">
-    <div class="grid">
-      <div class="dashboard-card">
-        <i class="bi bi-plus-circle display-5"></i>
-        <h5>Add Expense</h5>
-        <p>Record a new expense with category, amount, and date.</p>
-        <a href="/add" class="btn btn-primary w-100">Add Now</a>
-      </div>
-      <div class="dashboard-card">
-        <i class="bi bi-bar-chart-line display-5"></i>
-        <h5>View Summary</h5>
-        <p>Check your expense history and analyze spending trends.</p>
-        <a href="/summary" class="btn btn-outline-light w-100">View</a>
-      </div>
-      <div class="dashboard-card">
-        <i class="bi bi-person-circle display-5"></i>
-        <h5>Profile</h5>
-        <p>Manage your account details and preferences.</p>
-        <a href="/profile" class="btn btn-outline-light w-100">Open</a>
-      </div>
+  <div class="grid">
+    <!-- Add Expense Card -->
+    <div class="dashboard-card">
+      <i class="bi bi-plus-circle display-5"></i>
+      <h5>Add Expense</h5>
+      <p>Record a new expense with category, amount, and date.</p>
+      <a href="/add-expense" class="btn-card w-100">Add Now</a>
     </div>
-    <div class="text-center mt-5">
-      <a href="/logout" class="btn btn-danger px-4 py-2" style="font-weight:600;">
-        <i class="bi bi-box-arrow-right me-2"></i> Logout
-      </a>
+
+    <!-- View Summary Card -->
+    <div class="dashboard-card">
+      <i class="bi bi-bar-chart-line display-5"></i>
+      <h5>View Summary</h5>
+      <p>Check your expense history and analyze spending trends.</p>
+      <a href="/summary" class="btn-card-outline w-100">View</a>
     </div>
+
+    <!-- Profile Card -->
+    <div class="dashboard-card">
+      <i class="bi bi-person-circle display-5"></i>
+      <h5>Profile</h5>
+      <p>Manage your account details and preferences.</p>
+      <a href="/profile" class="btn-card-outline w-100">Open</a>
+    </div>
+  </div>
+
+  <!-- Logout Button -->
+  <div class="text-center mt-5">
+    <a href="/logout" class="btn-danger px-4 py-2" style="font-weight:600;">
+      <i class="bi bi-box-arrow-right me-2"></i> Logout
+    </a>
+  </div>
+</section>
   </section>
 </body>
 </html>
