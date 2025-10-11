@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Sections & Entries | Expense Manager</title>
+  <title>Add Income & Expenses | Expense Manager</title>
 
   <!-- CSS & Icons -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -21,16 +21,33 @@
   <main class="dashboard-content">
     <div class="welcome-box">
       <h2>Manage Your Finances</h2>
-      <p>Add sections (like Salary, SIPs, or Home Expenses) and track entries under them.</p>
+      <p>Add your income, expenses, and organize them into categories.</p>
+    </div>
+
+    <!-- FIXED INCOME SECTION -->
+    <div class="section-box">
+      <div class="section-header">
+        <h4>💰 Income Sources</h4>
+      </div>
+
+      <div class="add-entry-form">
+        <input type="text" id="incomeTitle" class="form-control" placeholder="e.g. Salary, Rent, Freelance" />
+        <input type="number" id="incomeAmount" class="form-control" placeholder="Amount" min="0" step="0.01" />
+        <button class="btn-primary" id="addIncomeBtn">Add Income</button>
+      </div>
+
+      <div id="incomeList" class="entries-list">
+        <p class="no-entry-text">No income added yet.</p>
+      </div>
     </div>
 
     <!-- ADD SECTION FORM -->
     <div class="auth-container" id="add-section">
-      <h3 class="form-title">Create a New Section</h3>
+      <h3 class="form-title">Create a New Expense Section</h3>
       <form id="sectionForm">
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-folder-plus"></i></span>
-          <input type="text" id="sectionName" class="form-control" placeholder="e.g. Salary, SIPs, Home Expenses" required>
+          <input type="text" id="sectionName" class="form-control" placeholder="e.g. SIPs, Home Expenses, Entertainment" required>
         </div>
         <button type="submit" class="btn-primary">Add Section</button>
       </form>
@@ -41,9 +58,6 @@
 
     <!-- ACTION BUTTONS -->
     <div class="text-center mt-5">
-      <button id="saveAllBtn" class="btn-primary" style="width:200px; margin-right:10px;">
-        <i class="bi bi-save"></i> Save All
-      </button>
       <a href="/summary" class="btn-card-outline" style="padding:0.8rem 2rem;">
         <i class="bi bi-bar-chart-line"></i> View Summary
       </a>
@@ -55,10 +69,12 @@
     const sectionForm = document.getElementById('sectionForm');
     const sectionNameInput = document.getElementById('sectionName');
     const sectionsContainer = document.getElementById('sectionsContainer');
-    const saveAllBtn = document.getElementById('saveAllBtn');
+    const addIncomeBtn = document.getElementById('addIncomeBtn');
+    const incomeList = document.getElementById('incomeList');
     let sections = [];
+    let incomeEntries = [];
 
-    // Load existing sections from backend
+    // 🔹 Load all sections + incomes from backend
     async function loadSections() {
       const res = await fetch("/get-sections");
       const data = await res.json();
@@ -66,9 +82,52 @@
         sections = data.sections;
         renderSections();
       }
+
+      // Load existing income entries
+      const incomeRes = await fetch("/get-incomes");
+      const incomeData = await incomeRes.json();
+      if (incomeData.status === "success") {
+        incomeEntries = incomeData.entries;
+        renderIncomes();
+      }
     }
 
-    // Add new section
+    // 🔹 Add Income
+    addIncomeBtn.addEventListener('click', async () => {
+      const title = document.getElementById('incomeTitle').value.trim();
+      const amount = parseFloat(document.getElementById('incomeAmount').value);
+      if (!title || isNaN(amount) || amount <= 0) return alert("Enter valid income details!");
+
+      const res = await fetch("/save-entry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section_id: "income_section", title, amount, type: "income" })
+      });
+
+      const data = await res.json();
+      if (data.status === "success") {
+        incomeEntries.push(data.entry);
+        renderIncomes();
+        document.getElementById('incomeTitle').value = '';
+        document.getElementById('incomeAmount').value = '';
+      }
+    });
+
+    // 🔹 Render Income List
+    function renderIncomes() {
+      if (incomeEntries.length === 0) {
+        incomeList.innerHTML = "<p class='no-entry-text'>No income added yet.</p>";
+        return;
+      }
+      incomeList.innerHTML = incomeEntries.map(entry => `
+        <div class="entry-item">
+          <span>${entry.title}</span>
+          <span>₹${entry.amount.toFixed(2)}</span>
+        </div>
+      `).join('');
+    }
+
+    // 🔹 Add new custom section
     sectionForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = sectionNameInput.value.trim();
@@ -88,23 +147,22 @@
       }
     });
 
-    // Add entry to section (and save immediately)
+    // 🔹 Add entry to a section
     async function handleAddEntry(sectionId) {
       const titleInput = document.getElementById(`entryTitle-${sectionId}`);
       const amountInput = document.getElementById(`entryAmount-${sectionId}`);
+      const typeSelect = document.getElementById(`entryType-${sectionId}`);
+
       const title = titleInput.value.trim();
       const amount = parseFloat(amountInput.value);
+      const type = typeSelect.value;
+
       if (!title || isNaN(amount) || amount <= 0) return;
 
       const res = await fetch("/save-entry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          section_id: sectionId,
-          title,
-          amount,
-          type: "expense"
-        })
+        body: JSON.stringify({ section_id: sectionId, title, amount, type })
       });
 
       const data = await res.json();
@@ -114,24 +172,10 @@
         renderSections();
         titleInput.value = '';
         amountInput.value = '';
-      } else {
-        alert("Error saving entry: " + data.message);
       }
     }
 
-    // Save all to backend (not really needed since we save each entry instantly)
-    saveAllBtn.addEventListener('click', async () => {
-      alert("✅ All your expenses are already saved in the database!");
-    });
-
-    // Delete section (frontend only for now)
-    async function deleteSection(sectionId) {
-      if (!confirm("Delete this section?")) return;
-      sections = sections.filter(s => s._id !== sectionId);
-      renderSections();
-    }
-
-    // Render all sections
+    // 🔹 Render all custom sections
     function renderSections() {
       sectionsContainer.innerHTML = '';
       sections.forEach(section => {
@@ -140,23 +184,23 @@
         div.innerHTML = `
           <div class="section-header">
             <h4>${section.name}</h4>
-            <button class="delete-btn" onclick="deleteSection('${section._id}')">
-              <i class="bi bi-trash"></i>
-            </button>
           </div>
           <div class="add-entry-form">
-            <input type="text" id="entryTitle-${section._id}" class="form-control" placeholder="Entry title (e.g. Groceries, Rent, SIP name)">
+            <input type="text" id="entryTitle-${section._id}" class="form-control" placeholder="Entry title">
             <input type="number" id="entryAmount-${section._id}" class="form-control" placeholder="Amount" min="0" step="0.01">
-            <button class="btn-primary" type="button" onclick="handleAddEntry('${section._id}')">Add Entry</button>
+            <select id="entryType-${section._id}" class="form-control">
+              <option value="expense" selected>Expense</option>
+              <option value="income">Income</option>
+            </select>
+            <button class="btn-primary" type="button" onclick="handleAddEntry('${section._id}')">Add</button>
           </div>
           <div class="entries-list">
             ${section.entries && section.entries.length > 0
               ? section.entries.map(entry => `
                 <div class="entry-item">
                   <span>${entry.title}</span>
-                  <span>₹${entry.amount.toFixed(2)}</span>
-                </div>
-              `).join('')
+                  <span>${entry.type === 'income' ? '+' : '-'}₹${entry.amount.toFixed(2)}</span>
+                </div>`).join('')
               : `<p class="no-entry-text">No entries yet.</p>`}
           </div>
         `;
@@ -164,7 +208,7 @@
       });
     }
 
-    loadSections(); // Load user’s existing data
+    loadSections(); // Load existing data
   </script>
 </body>
 </html>
