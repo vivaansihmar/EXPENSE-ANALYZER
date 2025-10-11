@@ -5,6 +5,8 @@ from bson.objectid import ObjectId
 from datetime import datetime
 from pymongo import MongoClient
 import os
+import pandas as pd
+from ml.finance_model import generate_finance_graphs  # 👈 Import ML module
 
 app = Flask(__name__, template_folder="templates")
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
@@ -105,6 +107,22 @@ def add_expense():
 
     return render_template("add_expense.html", user=session["user"], css_version=css_version)
 
+@app.route("/get-sections")
+def get_sections():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    user_email = session["user"]["email"]
+    sections = list(sections_collection.find({"email": user_email}))
+
+    for s in sections:
+        s["_id"] = str(s["_id"])
+        s["entries"] = list(entries_collection.find({"section_id": s["_id"]}))
+        for e in s["entries"]:
+            e["_id"] = str(e["_id"])
+
+    return jsonify({"status": "success", "sections": sections}), 200
+
 
 # ------------------- AJAX API: SAVE SECTION -------------------
 @app.route("/save-section", methods=["POST"])
@@ -143,6 +161,7 @@ def save_entry():
     section_id = data.get("section_id")
     title = data.get("title", "").strip()
     amount = float(data.get("amount", 0))
+    entry_type = data.get("type", "expense").lower()
 
     if not section_id or not title or amount <= 0:
         return jsonify({"status": "error", "message": "Invalid data"}), 400
@@ -152,6 +171,7 @@ def save_entry():
         "section_id": section_id,
         "title": title,
         "amount": amount,
+        "type": entry_type,
         "created_at": datetime.utcnow()
     }
 
@@ -160,6 +180,75 @@ def save_entry():
 
     return jsonify({"status": "success", "entry": entry}), 201
 
+
+@app.route("/summary")
+def summary():
+    if "user" not in session:
+        return redirect("/auth")
+
+    user_email = session["user"]["email"]
+
+    # Fetch all entries from MongoDB
+    entries = list(entries_collection.find({"email": user_email}))
+    if not entries:
+        return render_template("summary.html", user=session["user"], graphs_available=False)
+
+    # Convert MongoDB entries to DataFrame
+    df = pd.DataFrame(entries)
+    df['date'] = pd.to_datetime(df.get('created_at', datetime.utcnow()))
+    df['category'] = df.get('title', 'Other')
+    df['amount'] = df['amount'].astype(float)
+    df['type'] = df.get('type', 'expense')
+
+    # Generate graphs using ML module
+    static_path = os.path.join(os.path.dirname(__file__), "static")
+    generate_finance_graphs(df=df, static_path=static_path)
+
+    # Graph files for display
+    graphs = [
+        "monthly_income_expense.png",
+        "category_expense_pie.png",
+        "expense_forecast.png"
+    ]
+
+    return render_template(
+        "summary.html",
+        user=session["user"],
+        graphs=graphs,
+        graphs_available=True
+    )
+
+@app.route("/summary-data")
+def summary_data():
+    if "user" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    user_email = session["user"]["email"]
+    entries = list(entries_collection.find({"email": user_email}))
+
+    if not entries:
+        return jsonify({"status": "success", "data": []})
+
+    df = pd.DataFrame(entries)
+    df['date'] = pd.to_datetime(df['created_at'])
+    df['month'] = df['date'].dt.to_period('M').astype(str)
+    df['amount'] = df['amount'].astype(float)
+    df['type'] = df.get('type', 'expense')
+    df['category'] = df.get('title', 'Other')
+
+    # Group by month and type for income vs expense
+    monthly = df.groupby(['month', 'type'])['amount'].sum().unstack(fill_value=0)
+    expense_by_category = df[df['type'] == 'expense'].groupby('category')['amount'].sum().sort_values(ascending=False)
+
+    data = {
+        "months": list(monthly.index),
+        "income": monthly.get('income', pd.Series()).tolist(),
+        "expense": monthly.get('expense', pd.Series()).tolist(),
+        "categories": list(expense_by_category.index),
+        "category_amounts": expense_by_category.tolist()
+    }
+
+    return jsonify({"status": "success", "data": data})
 
 # ------------------- LOGOUT -------------------
 @app.route("/logout")

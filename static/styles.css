@@ -347,6 +347,76 @@ body.dashboard-page {
   height: 50px;
   border-radius: 10px;
 }
+/* ---------- ADD SECTIONS PAGE ---------- */
+.section-box {
+  background: var(--bg-1);
+  border: 1px solid var(--glass);
+  border-radius: var(--card-radius);
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow);
+  transition: 0.3s;
+}
+
+.section-box:hover {
+  transform: translateY(-2px);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.entries-list {
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
+}
+
+.entry-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.entry-item span {
+  font-weight: 500;
+}
+
+.no-entry-text {
+  color: gray;
+  font-size: 0.9rem;
+}
+
+.add-entry-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.add-entry-form input {
+  flex: 1;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #b33;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  color: #ff5c5c;
+}
+
 
 /* ---------- MEDIA QUERIES ---------- */
 @media (max-width: 900px) {
