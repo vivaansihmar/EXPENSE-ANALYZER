@@ -4,30 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login / Register | Expense Manager</title>
-
-  <!-- CSS & Icons -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
-
   <style>
-    /* minimal extra logic-only class */
     .hidden { display: none !important; }
   </style>
 </head>
-
 <body class="auth-page">
-  <!-- HEADER -->
   <header class="main-header d-flex align-items-center gap-3">
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Expense Manager Logo" class="logo-img">
     <h3 class="m-0">Expense Manager</h3>
   </header>
-
-  <!-- MAIN AUTH CONTAINER -->
   <main class="auth-page">
     <div class="auth-container" role="main" aria-labelledby="formTitle">
       <h3 class="form-title" id="formTitle">Login</h3>
-
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           <div class="mb-3">
@@ -37,97 +28,75 @@
           </div>
         {% endif %}
       {% endwith %}
-
       <form method="POST" action="{{ url_for('auth') }}" novalidate>
         <input type="hidden" id="formType" name="formType" value="login">
-
-        <!-- Login field: Username or Email -->
         <div class="input-group" id="login-identifier">
           <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
           <input id="identifier" type="text" name="identifier" class="form-control" placeholder="Username or Email" required>
         </div>
-
-        <!-- Register field: Username -->
         <div class="input-group hidden" id="register-username">
           <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
           <input id="username" type="text" name="username" class="form-control" placeholder="Username">
         </div>
-
-        <!-- Register field: Email -->
         <div class="input-group hidden" id="register-email">
           <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
           <input id="email" type="email" name="email" class="form-control" placeholder="Email">
         </div>
-
-        <!-- Password (shared) -->
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
           <input id="password" type="password" name="password" class="form-control" placeholder="Password" required minlength="6">
         </div>
-
-        <!-- Confirm Password (register only) -->
         <div class="input-group hidden" id="confirm-password">
           <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
           <input id="confirmPassword" type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" minlength="6">
         </div>
-
         <button type="submit" id="submitBtn" class="btn btn-primary">
           Login
         </button>
       </form>
-
       <div class="form-switch text-center mt-3">
         <span id="switchText">Don’t have an account?</span>
         <a href="#" id="switchLink" class="btn btn-outline-light ms-2">Register</a>
       </div>
     </div>
   </main>
-
-  <!-- Toggle Script -->
   <script>
     const switchLink = document.getElementById("switchLink");
     const formType = document.getElementById("formType");
     const formTitle = document.getElementById("formTitle");
     const submitBtn = document.getElementById("submitBtn");
     const switchText = document.getElementById("switchText");
-
     const loginIdentifier = document.getElementById("login-identifier");
     const registerUsername = document.getElementById("register-username");
     const registerEmail = document.getElementById("register-email");
     const confirmPassword = document.getElementById("confirm-password");
-
     function showLoginForm() {
       formType.value = "login";
       formTitle.textContent = "Login";
       submitBtn.textContent = "Login";
       switchText.textContent = "Don’t have an account?";
       switchLink.textContent = "Register";
-
       loginIdentifier.classList.remove("hidden");
       registerUsername.classList.add("hidden");
       registerEmail.classList.add("hidden");
       confirmPassword.classList.add("hidden");
     }
-
     function showRegisterForm() {
       formType.value = "register";
       formTitle.textContent = "Register";
       submitBtn.textContent = "Create Account";
       switchText.textContent = "Already have an account?";
       switchLink.textContent = "Login";
-
       loginIdentifier.classList.add("hidden");
       registerUsername.classList.remove("hidden");
       registerEmail.classList.remove("hidden");
       confirmPassword.classList.remove("hidden");
     }
-
     switchLink.addEventListener("click", (e) => {
       e.preventDefault();
       if (formType.value === "login") showRegisterForm();
       else showLoginForm();
     });
-
     document.addEventListener("DOMContentLoaded", showLoginForm);
   </script>
 </body>

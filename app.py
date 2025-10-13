@@ -14,11 +14,10 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 import pandas as pd
 
-# ------------------- FLASK SETUP -------------------
 app = Flask(__name__, template_folder="templates")
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
 
-# ------------------- SESSION CONFIG -------------------
+#session config
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -28,11 +27,21 @@ Session(app)
 
 bcrypt = Bcrypt(app)
 
-# ------------------- LOGGING -------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+# ------------------- MONGO SETUP -------------------
+MONGO_URI = os.environ.get("MONGO_URI")
 
-# ------------------- DATABASE SETUP -------------------
+if not MONGO_URI:
+    print("❌ MONGO_URI not found in environment variables!")
+else:
+    print(f"✅ MONGO_URI loaded: {MONGO_URI[:40]}...")  # print first few chars
+
+client = MongoClient(MONGO_URI)
+db = client["Expenseanalyzer"]
+
+#Mongo
+
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
 db = client["Expenseanalyzer"]
@@ -40,8 +49,6 @@ db = client["Expenseanalyzer"]
 users_collection = db["logindetails"]
 sections_collection = db["sections"]
 entries_collection = db["entries"]
-
-# ------------------- HELPERS -------------------
 def to_jsonable_entry(doc):
     """Convert Mongo document to JSON-safe dict"""
     d = dict(doc)
@@ -61,13 +68,13 @@ def parse_json_or_form(req):
     json_body = req.get_json(silent=True)
     return json_body if json_body else req.form.to_dict()
 
-# ------------------- ROUTES -------------------
+#rooutingg
 
 @app.route("/")
 def home():
     return redirect("/auth")
 
-# ------------------- AUTH -------------------
+#auth
 @app.route("/auth", methods=["GET", "POST"])
 def auth():
     if request.method == "POST":
@@ -98,7 +105,7 @@ def auth():
                 return "Invalid email or password"
     return render_template("auth.html")
 
-# ------------------- DASHBOARD -------------------
+# dashboard
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -116,7 +123,7 @@ def dashboard():
     css_version = int(os.path.getmtime(css_path)) if os.path.exists(css_path) else 0
     return render_template("dashboard.html", user=session["user"], sections=sections, css_version=css_version)
 
-# ------------------- ADD EXPENSE PAGE -------------------
+#expense
 @app.route("/add-expense")
 def add_expense():
     if "user" not in session:
@@ -125,12 +132,11 @@ def add_expense():
     css_version = int(os.path.getmtime(css_path)) if os.path.exists(css_path) else 0
     return render_template("add_expense.html", user=session["user"], css_version=css_version)
 
-# ------------------- API ENDPOINTS -------------------
+#Api endpnts
 @app.route("/get-sections")
 def get_sections():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
-
     user_email = session["user"]["email"]
     sections = list(sections_collection.find({"email": user_email}))
     out = []
@@ -155,7 +161,7 @@ def get_incomes():
     incomes = list(entries_collection.find({"email": user_email, "type": "income"}))
     return jsonify({"status": "success", "entries": [to_jsonable_entry(i) for i in incomes]})
 
-# ------------------- DELETE SECTION / ENTRY -------------------
+#deletion
 @app.route("/delete-section/<section_id>", methods=["DELETE"])
 def delete_section(section_id):
     if "user" not in session:
@@ -171,18 +177,16 @@ def delete_entry(entry_id):
     entries_collection.delete_one({"_id": ObjectId(entry_id)})
     return jsonify({"status": "success"}), 200
 
-# ------------------- SAVE SECTION -------------------
+#save
 @app.route("/save-section", methods=["POST"])
 def save_section():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
-
     user_email = session["user"]["email"]
     data = parse_json_or_form(request)
     section_name = (data.get("name") or "").strip()
     if not section_name:
         return jsonify({"status": "error", "message": "Section name required"}), 400
-
     section = {
         "email": user_email,
         "name": section_name,
@@ -194,12 +198,10 @@ def save_section():
     section["entries"] = []
     return jsonify({"status": "success", "section": section}), 201
 
-# ------------------- SAVE ENTRY -------------------
 @app.route("/save-entry", methods=["POST"])
 def save_entry():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
-
     user_email = session["user"]["email"]
     data = parse_json_or_form(request)
     section_id = data.get("section_id")
@@ -208,10 +210,8 @@ def save_entry():
     entry_type = (data.get("type") or "expense").lower()
     month = data.get("month") or datetime.utcnow().strftime("%B")
     year = int(data.get("year") or datetime.utcnow().year)
-
     if not section_id or not title or amount <= 0:
         return jsonify({"status": "error", "message": "Invalid data"}), 400
-
     entry = {
         "email": user_email,
         "section_id": str(section_id),
@@ -227,7 +227,7 @@ def save_entry():
     entry["created_at"] = entry["created_at"].isoformat()
     return jsonify({"status": "success", "entry": entry}), 201
 
-# ------------------- SUMMARY -------------------
+#summary
 @app.route("/summary")
 def summary():
     if "user" not in session:
@@ -238,23 +238,17 @@ def summary():
 def summary_data():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
-
     user_email = session["user"]["email"]
     entries = list(entries_collection.find({"email": user_email}))
     if not entries:
         return jsonify({"status": "success", "data": {}})
-
     df = pd.DataFrame(entries)
-
-    # Ensure month/year
     df["month"] = df.get("month", pd.to_datetime(df["created_at"]).dt.strftime("%B"))
     df["year"] = pd.to_numeric(df.get("year", pd.to_datetime(df["created_at"]).dt.year), errors="coerce").fillna(datetime.utcnow().year).astype(int)
     df["month_year"] = df["month"].astype(str) + " " + df["year"].astype(str)
-
     df["amount"] = pd.to_numeric(df["amount"], errors="coerce").fillna(0)
     df["type"] = df.get("type", "expense")
     df["category"] = df.get("title", "Other")
-
     income_df = df[df["type"] == "income"]
     expense_df = df[df["type"] == "expense"]
 
@@ -279,18 +273,17 @@ def summary_data():
 
     return jsonify({"status": "success", "data": data})
 
-# ------------------- LOGOUT -------------------
+#logout
 @app.route("/logout")
 def logout():
     session.pop("user", None)
     return redirect("/auth")
 
-# ------------------- CONTEXT -------------------
 @app.context_processor
 def inject_now():
     return {"now": datetime.utcnow}
 
-# ------------------- RUN -------------------
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     debug_flag = os.environ.get("FLASK_DEBUG", "True").lower() in ("1", "true", "yes")
