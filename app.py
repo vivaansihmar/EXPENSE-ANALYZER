@@ -67,15 +67,12 @@ def parse_json_or_form(req):
 def dashboard():
     if "user" not in session:
         return redirect("/auth")
-
     user_email = session["user"]["email"]
     sections = list(sections_collection.find({"email": user_email}))
-
     for section in sections:
         section["_id"] = str(section["_id"])
         entries = list(entries_collection.find({"section_id": section["_id"]}))
         section["entries"] = [to_jsonable_entry(e) for e in entries]
-
     css_path = os.path.join(os.path.dirname(__file__), "static", "styles.css")
     css_version = int(os.path.getmtime(css_path)) if os.path.exists(css_path) else 0
     return render_template("dashboard.html", user=session["user"], sections=sections, css_version=css_version)
@@ -240,34 +237,38 @@ def auth():
             username = request.form.get("username", "").strip()
             password = request.form.get("password", "")
             if not email or not username or not password:
-                return "All fields are required."
-            if users_collection.find_one({"email": email}):
-                return "User already exists. Please login."
-            if users_collection.find_one({"username": username}):
-                return "Username already taken."
-            hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
-            users_collection.insert_one({
-                "username": username,
-                "email": email,
-                "password": hashed_pw
-            })
-            session["user"] = {"email": email, "username": username}
-            return redirect("/dashboard")
+                flash("All fields are required.", "error")
+            elif users_collection.find_one({"email": email}):
+                flash("User already exists. Please login.", "error")
+            elif users_collection.find_one({"username": username}):
+                flash("Username already taken.", "error")
+            else:
+                hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
+                users_collection.insert_one({
+                    "username": username,
+                    "email": email,
+                    "password": hashed_pw
+                })
+                session["user"] = {"email": email, "username": username}
+                return redirect("/dashboard")
         elif form_type == "login":
             identifier = (request.form.get("identifier") or request.form.get("email") or "").strip()
             password = request.form.get("password", "")
             if not identifier or not password:
-                return "Invalid email/username or password"
-            if "@" in identifier:
-                user = users_collection.find_one({"email": identifier.lower()})
+                flash("Please enter both fields.", "error")
             else:
-                user = users_collection.find_one({"username": identifier})
-            if user and bcrypt.check_password_hash(user["password"], password):
-                session["user"] = {"email": user["email"], "username": user["username"]}
-                return redirect("/dashboard")
-            else:
-                return "Invalid email or password"
+                if "@" in identifier:
+                    user = users_collection.find_one({"email": identifier.lower()})
+                else:
+                    user = users_collection.find_one({"username": identifier})
+                if user and bcrypt.check_password_hash(user["password"], password):
+                    session["user"] = {"email": user["email"], "username": user["username"]}
+                    return redirect("/dashboard")
+                else:
+                    flash("Invalid email/username or password.", "error")
+        return redirect(f"/auth?form={form_type}") 
     return render_template("auth.html")
+
 
 # profile
 @app.route("/profile")

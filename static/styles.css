@@ -167,6 +167,30 @@ body.home-page {
   padding: 0.4rem 1rem;
   font-weight: 600;
 }
+.hidden { display: none !important; }
+    .toast {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      padding: 14px 22px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.4s ease;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: #e74c3c; }
+    .toast.success { background: #2ecc71; }
+    .toast.info { background: #3498db; }
+    .toast i { font-size: 1.1rem; }
 
 .dashboard-content {
   display: flex;
