@@ -191,6 +191,310 @@ body.home-page {
     .toast.success { background: #2ecc71; }
     .toast.info { background: #3498db; }
     .toast i { font-size: 1.1rem; }
+    
+body {
+      background-color: var(--bg-0);
+      color: var(--muted);
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: var(--bg-1);
+      color: var(--accent);
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header img.logo-img {
+      width: 42px;
+      height: 42px;
+    }
+
+    .home-hero {
+      text-align: center;
+      padding: 80px 20px 40px;
+      background: linear-gradient(180deg, var(--bg-1), var(--bg-0));
+      border-bottom: 2px solid var(--accent-2);
+    }
+
+    .hero-title {
+      color: var(--accent);
+      font-size: 2.3rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      max-width: 620px;
+      margin: 0 auto 30px;
+      color: var(--muted);
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-card, .btn-card-outline {
+      padding: 10px 22px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .btn-card {
+      background-color: var(--accent);
+      color: #fff;
+    }
+    .btn-card:hover { background-color: var(--accent-2); }
+
+    .btn-card-outline {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+    .btn-card-outline:hover {
+      background-color: var(--accent);
+      color: #fff;
+    }
+:root {
+  --bg-0: #f9f6f2;
+  --bg-1: #f0e8df;
+  --accent: #99744a;
+  --accent-2: #c8ab8a;
+  --muted: #6b6b6b;
+}
+
+/* 🌿 General */
+body {
+  background: var(--bg-0);
+  color: #222;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+}
+
+/* 🌟 HERO + SPLINE */
+.home-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 80px 5%;
+  background: var(--bg-1);
+  gap: 60px;
+}
+
+.hero-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  width: 100%;
+  gap: 40px;
+}
+
+.hero-copy {
+  flex: 1 1 400px;
+  text-align: left;
+}
+
+.hero-title {
+  font-size: 2.4rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #1c1c1c;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.hero-actions a {
+  display: inline-block;
+  margin-right: 12px;
+  padding: 12px 26px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-card {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-card:hover {
+  background: var(--accent-2);
+}
+
+.btn-card-outline {
+  border: 1.6px solid var(--accent);
+  color: var(--accent);
+}
+
+.btn-card-outline:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* 🎨 SPLINE MODEL INTEGRATION */
+.hero-3d {
+  flex: 1 1 450px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  position: relative;
+}
+
+.hero-3d iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  mix-blend-mode: multiply;
+  pointer-events: none; /* makes it feel like part of the page */
+  transform: scale(1.05);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1.05); }
+  50% { transform: translateY(-10px) scale(1.05); }
+}
+
+/* 🧩 BENTO SECTION */
+.hero-bento-title {
+  text-align: center;
+  font-size: 2.2rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 90px 0 50px 0;
+  letter-spacing: 0.6px;
+}
+
+.parent {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 180px);
+  gap: 12px;
+  margin: 0 auto 80px auto;
+  width: 90%;
+  max-width: 1200px;
+}
+
+.parent > div {
+  background: var(--bg-1);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.parent > div:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.1);
+  background: var(--accent-2);
+  color: #fff;
+}
+
+.parent i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: var(--accent);
+  transition: color 0.3s ease;
+}
+
+.parent > div:hover i { color: #fff; }
+
+/* 🧱 Grid Positions */
+.div1 { grid-column: span 2; grid-row: span 3; }
+.div2 { grid-column: 3 / span 3; grid-row: 3 / span 2; }
+.div3 { grid-column: 3 / span 2; grid-row: 1 / span 2; }
+.div4 { grid-column: 5; grid-row: 1 / span 2; }
+.div6 { grid-row: 4 / span 2; grid-column: 1 / span 2; }
+.div8 { grid-column: 3 / span 3; grid-row: 5; }
+
+/* 🪶 Responsive */
+@media (max-width: 992px) {
+  .hero-inner { flex-direction: column; text-align: center; }
+  .hero-3d iframe { height: 400px; }
+  .parent { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+  .div1, .div2, .div3, .div4, .div6, .div8 { grid-column: span 2; grid-row: auto; }
+}
+
+
+    .home-features {
+      padding: 60px 20px;
+      background: var(--bg-1);
+      color: var(--accent);
+      text-align: center;
+    }
+
+    .home-features .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .feature-card {
+      flex: 1 1 250px;
+      background: var(--bg-0);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .feature-card i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    .feature-card:hover i { color: #fff; }
+
+    @media (max-width: 768px) {
+      .parent {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+      }
+    }
 
 .dashboard-content {
   display: flex;
