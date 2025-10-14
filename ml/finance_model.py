@@ -23,9 +23,9 @@ def generate_finance_graphs(df=None, csv_path=None, static_path="static"):
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import mean_absolute_error
 
-    # -----------------------------
+    
     # 1. LOAD DATA
-    # -----------------------------
+    
     if df is None:
         if csv_path is None:
             raise ValueError("Please provide either a DataFrame or a CSV path.")
@@ -43,9 +43,9 @@ def generate_finance_graphs(df=None, csv_path=None, static_path="static"):
 
     os.makedirs(static_path, exist_ok=True)
 
-    # -----------------------------
-    # 2. MONTHLY INCOME VS EXPENSE
-    # -----------------------------
+    
+    #2. MONTHLY INCOME VS EXPENSE
+    
     monthly_summary = df.groupby(['month', 'type'])['amount'].sum().unstack(fill_value=0)
     plt.figure(figsize=(10, 5))
     monthly_summary.plot(kind='bar', ax=plt.gca())
@@ -56,9 +56,9 @@ def generate_finance_graphs(df=None, csv_path=None, static_path="static"):
     plt.savefig(f"{static_path}/monthly_income_expense.png")
     plt.close()
 
-    # -----------------------------
-    # 3. CATEGORY-WISE EXPENSE PIE CHART
-    # -----------------------------
+
+    # 3. CATEGORY PIE 
+
     expense_data = df[df['type'] == 'expense']
     if not expense_data.empty:
         cat_summary = expense_data.groupby('category')['amount'].sum().sort_values(ascending=False)
@@ -70,9 +70,7 @@ def generate_finance_graphs(df=None, csv_path=None, static_path="static"):
         plt.savefig(f"{static_path}/category_expense_pie.png")
         plt.close()
 
-    # -----------------------------
-    # 4. EXPENSE FORECAST
-    # -----------------------------
+
     if not expense_data.empty:
         expense_trend = expense_data.groupby('month')['amount'].sum().reset_index()
         expense_trend['month_num'] = np.arange(len(expense_trend))
@@ -87,7 +85,7 @@ def generate_finance_graphs(df=None, csv_path=None, static_path="static"):
             y_pred = model.predict(X_test)
             mae = mean_absolute_error(y_test, y_pred)
 
-            # Predict next month
+            
             next_month = [[expense_trend['month_num'].max() + 1]]
             predicted_expense = model.predict(next_month)[0]
 
@@ -108,9 +106,9 @@ def generate_finance_graphs(df=None, csv_path=None, static_path="static"):
     return True
 
 
-    # -----------------------------
-    # 6. SUMMARY OUTPUT
-    # -----------------------------
+    
+    # 6. SUMMARY
+    
     summary = {
         "Mean Absolute Error": mae,
         "Predicted Next Month Expense (₹)": predicted_expense,

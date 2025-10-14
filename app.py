@@ -1,13 +1,9 @@
-# app.py — Production Ready (Render + MongoDB Atlas)
 import os
 import logging
 from datetime import datetime
-
-# 🧠 Use non-GUI backend for matplotlib (avoids Render crash)
 import matplotlib
 matplotlib.use("Agg")
-
-from flask import Flask, render_template, request, redirect, session, jsonify
+from flask import Flask, render_template, request, redirect, session, jsonify, url_for, flash
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from bson.objectid import ObjectId
@@ -17,7 +13,7 @@ import pandas as pd
 app = Flask(__name__, template_folder="templates")
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
 
-#session config
+# session config
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -29,19 +25,18 @@ bcrypt = Bcrypt(app)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# ------------------- MONGO SETUP -------------------
-MONGO_URI = os.environ.get("MONGO_URI")
 
+# mongochk
+MONGO_URI = os.environ.get("MONGO_URI")
 if not MONGO_URI:
-    print("❌ MONGO_URI not found in environment variables!")
+    print(" MONGO_URI not found in environment variables!")
 else:
-    print(f"✅ MONGO_URI loaded: {MONGO_URI[:40]}...")  # print first few chars
+    print(f"MONGO_URI loaded: {MONGO_URI[:40]}...")
 
 client = MongoClient(MONGO_URI)
 db = client["Expenseanalyzer"]
 
-#Mongo
-
+#Mongo 
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
 db = client["Expenseanalyzer"]
@@ -49,8 +44,8 @@ db = client["Expenseanalyzer"]
 users_collection = db["logindetails"]
 sections_collection = db["sections"]
 entries_collection = db["entries"]
+
 def to_jsonable_entry(doc):
-    """Convert Mongo document to JSON-safe dict"""
     d = dict(doc)
     if "_id" in d:
         d["_id"] = str(d["_id"])
@@ -64,48 +59,10 @@ def to_jsonable_entry(doc):
     return d
 
 def parse_json_or_form(req):
-    """Parse data from JSON or form POST"""
     json_body = req.get_json(silent=True)
     return json_body if json_body else req.form.to_dict()
 
-#rooutingg
-
-@app.route("/")
-def home():
-    return redirect("/auth")
-
-#auth
-@app.route("/auth", methods=["GET", "POST"])
-def auth():
-    if request.method == "POST":
-        form_type = request.form.get("formType")
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-        if form_type == "register":
-            username = request.form.get("username", "").strip()
-            if users_collection.find_one({"email": email}):
-                return "User already exists. Please login."
-            if users_collection.find_one({"username": username}):
-                return "Username already taken."
-            hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
-            users_collection.insert_one({
-                "username": username,
-                "email": email,
-                "password": hashed_pw
-            })
-            session["user"] = {"email": email, "username": username}
-            return redirect("/dashboard")
-
-        elif form_type == "login":
-            user = users_collection.find_one({"email": email})
-            if user and bcrypt.check_password_hash(user["password"], password):
-                session["user"] = {"email": user["email"], "username": user["username"]}
-                return redirect("/dashboard")
-            else:
-                return "Invalid email or password"
-    return render_template("auth.html")
-
-# dashboard
+#dashboard
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -123,7 +80,7 @@ def dashboard():
     css_version = int(os.path.getmtime(css_path)) if os.path.exists(css_path) else 0
     return render_template("dashboard.html", user=session["user"], sections=sections, css_version=css_version)
 
-#expense
+# expense
 @app.route("/add-expense")
 def add_expense():
     if "user" not in session:
@@ -132,7 +89,7 @@ def add_expense():
     css_version = int(os.path.getmtime(css_path)) if os.path.exists(css_path) else 0
     return render_template("add_expense.html", user=session["user"], css_version=css_version)
 
-#Api endpnts
+# Api endpoints
 @app.route("/get-sections")
 def get_sections():
     if "user" not in session:
@@ -156,12 +113,11 @@ def get_sections():
 def get_incomes():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
-
     user_email = session["user"]["email"]
     incomes = list(entries_collection.find({"email": user_email, "type": "income"}))
     return jsonify({"status": "success", "entries": [to_jsonable_entry(i) for i in incomes]})
 
-#deletion
+# deletion
 @app.route("/delete-section/<section_id>", methods=["DELETE"])
 def delete_section(section_id):
     if "user" not in session:
@@ -177,7 +133,7 @@ def delete_entry(entry_id):
     entries_collection.delete_one({"_id": ObjectId(entry_id)})
     return jsonify({"status": "success"}), 200
 
-#save
+# save
 @app.route("/save-section", methods=["POST"])
 def save_section():
     if "user" not in session:
@@ -227,7 +183,7 @@ def save_entry():
     entry["created_at"] = entry["created_at"].isoformat()
     return jsonify({"status": "success", "entry": entry}), 201
 
-#summary
+# summary
 @app.route("/summary")
 def summary():
     if "user" not in session:
@@ -251,15 +207,12 @@ def summary_data():
     df["category"] = df.get("title", "Other")
     income_df = df[df["type"] == "income"]
     expense_df = df[df["type"] == "expense"]
-
     months_sorted = sorted(df["month_year"].unique(), key=lambda x: pd.to_datetime(str(x), format="%B %Y", errors="coerce"))
     monthly_income = income_df.groupby("month_year")["amount"].sum().reindex(months_sorted, fill_value=0)
     monthly_expense = expense_df.groupby("month_year")["amount"].sum().reindex(months_sorted, fill_value=0)
     savings = (monthly_income - monthly_expense).tolist()
-
     income_by_category = income_df.groupby("category")["amount"].sum().sort_values(ascending=False)
     expense_by_category = expense_df.groupby("category")["amount"].sum().sort_values(ascending=False)
-
     data = {
         "months": list(months_sorted),
         "income": monthly_income.tolist(),
@@ -270,10 +223,114 @@ def summary_data():
         "expense_categories": list(expense_by_category.index),
         "expense_amounts": expense_by_category.tolist()
     }
-
     return jsonify({"status": "success", "data": data})
 
-#logout
+# homepage
+@app.route("/")
+def home():
+    return render_template("homepage.html")
+
+# auth
+@app.route("/auth", methods=["GET", "POST"])
+def auth():
+    if request.method == "POST":
+        form_type = request.form.get("formType")
+        if form_type == "register":
+            email = request.form.get("email", "").strip().lower()
+            username = request.form.get("username", "").strip()
+            password = request.form.get("password", "")
+            if not email or not username or not password:
+                return "All fields are required."
+            if users_collection.find_one({"email": email}):
+                return "User already exists. Please login."
+            if users_collection.find_one({"username": username}):
+                return "Username already taken."
+            hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
+            users_collection.insert_one({
+                "username": username,
+                "email": email,
+                "password": hashed_pw
+            })
+            session["user"] = {"email": email, "username": username}
+            return redirect("/dashboard")
+        elif form_type == "login":
+            identifier = (request.form.get("identifier") or request.form.get("email") or "").strip()
+            password = request.form.get("password", "")
+            if not identifier or not password:
+                return "Invalid email/username or password"
+            if "@" in identifier:
+                user = users_collection.find_one({"email": identifier.lower()})
+            else:
+                user = users_collection.find_one({"username": identifier})
+            if user and bcrypt.check_password_hash(user["password"], password):
+                session["user"] = {"email": user["email"], "username": user["username"]}
+                return redirect("/dashboard")
+            else:
+                return "Invalid email or password"
+    return render_template("auth.html")
+
+# profile
+@app.route("/profile")
+def profile():
+    if "user" not in session:
+        return redirect(url_for("auth"))
+    return render_template("profile.html")
+
+@app.route("/profile/update-username", methods=["POST"])
+def update_username():
+    if "user" not in session:
+        return redirect(url_for("auth"))
+    new_username = (request.form.get("new_username") or "").strip()
+    if not new_username:
+        flash("Username cannot be empty.")
+        return redirect(url_for("profile"))
+    if users_collection.find_one({"username": new_username}):
+        flash("Username already taken.")
+        return redirect(url_for("profile"))
+    email = session["user"]["email"]
+    users_collection.update_one({"email": email}, {"$set": {"username": new_username}})
+    session["user"]["username"] = new_username
+    flash("Username updated successfully.")
+    return redirect(url_for("profile"))
+
+@app.route("/profile/change-password", methods=["POST"])
+def change_password():
+    if "user" not in session:
+        return redirect(url_for("auth"))
+    email = session["user"]["email"]
+    user = users_collection.find_one({"email": email})
+    current_password = request.form.get("current_password", "")
+    new_password = request.form.get("new_password", "")
+    confirm_password = request.form.get("confirm_password", "")
+    if not user or not bcrypt.check_password_hash(user["password"], current_password):
+        flash("Current password is incorrect.")
+        return redirect(url_for("profile"))
+    if len(new_password) < 6 or new_password != confirm_password:
+        flash("New password must be at least 6 characters and match confirmation.")
+        return redirect(url_for("profile"))
+    hashed_pw = bcrypt.generate_password_hash(new_password).decode("utf-8")
+    users_collection.update_one({"email": email}, {"$set": {"password": hashed_pw}})
+    flash("Password updated successfully.")
+    return redirect(url_for("profile"))
+
+@app.route("/profile/delete-account", methods=["POST"])
+def delete_account():
+    if "user" not in session:
+        return redirect(url_for("auth"))
+    email = session["user"]["email"]
+    user = users_collection.find_one({"email": email})
+    password = request.form.get("password", "")
+    if not user or not bcrypt.check_password_hash(user["password"], password):
+        flash("Password incorrect. Account not deleted.")
+        return redirect(url_for("profile"))
+    # Delete
+    sections_collection.delete_many({"email": email})
+    entries_collection.delete_many({"email": email})
+    users_collection.delete_one({"email": email})
+    session.pop("user", None)
+    flash("Your account has been deleted.")
+    return redirect(url_for("auth"))
+# logout
 @app.route("/logout")
 def logout():
     session.pop("user", None)
@@ -282,7 +339,6 @@ def logout():
 @app.context_processor
 def inject_now():
     return {"now": datetime.utcnow}
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
