@@ -20,31 +20,24 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "False").lower() in ("1", "true", "yes")
 Session(app)
-
 bcrypt = Bcrypt(app)
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 # mongochk
 MONGO_URI = os.environ.get("MONGO_URI")
 if not MONGO_URI:
     print(" MONGO_URI not found in environment variables!")
 else:
     print(f"MONGO_URI loaded: {MONGO_URI[:40]}...")
-
 client = MongoClient(MONGO_URI)
 db = client["Expenseanalyzer"]
-
 #Mongo 
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
 db = client["Expenseanalyzer"]
-
 users_collection = db["logindetails"]
 sections_collection = db["sections"]
 entries_collection = db["entries"]
-
 def to_jsonable_entry(doc):
     d = dict(doc)
     if "_id" in d:
@@ -57,11 +50,9 @@ def to_jsonable_entry(doc):
         except:
             pass
     return d
-
 def parse_json_or_form(req):
     json_body = req.get_json(silent=True)
     return json_body if json_body else req.form.to_dict()
-
 #dashboard
 @app.route("/dashboard")
 def dashboard():
@@ -76,7 +67,6 @@ def dashboard():
     css_path = os.path.join(os.path.dirname(__file__), "static", "styles.css")
     css_version = int(os.path.getmtime(css_path)) if os.path.exists(css_path) else 0
     return render_template("dashboard.html", user=session["user"], sections=sections, css_version=css_version)
-
 # expense
 @app.route("/add-expense")
 def add_expense():
@@ -85,7 +75,6 @@ def add_expense():
     css_path = os.path.join(os.path.dirname(__file__), "static", "styles.css")
     css_version = int(os.path.getmtime(css_path)) if os.path.exists(css_path) else 0
     return render_template("add_expense.html", user=session["user"], css_version=css_version)
-
 # Api endpoints
 @app.route("/get-sections")
 def get_sections():
@@ -105,7 +94,6 @@ def get_sections():
         }
         out.append(s_doc)
     return jsonify({"status": "success", "sections": out}), 200
-
 @app.route("/get-incomes")
 def get_incomes():
     if "user" not in session:
@@ -113,7 +101,6 @@ def get_incomes():
     user_email = session["user"]["email"]
     incomes = list(entries_collection.find({"email": user_email, "type": "income"}))
     return jsonify({"status": "success", "entries": [to_jsonable_entry(i) for i in incomes]})
-
 # deletion
 @app.route("/delete-section/<section_id>", methods=["DELETE"])
 def delete_section(section_id):
@@ -122,14 +109,12 @@ def delete_section(section_id):
     entries_collection.delete_many({"section_id": section_id})
     sections_collection.delete_one({"_id": ObjectId(section_id)})
     return jsonify({"status": "success"}), 200
-
 @app.route("/delete-entry/<entry_id>", methods=["DELETE"])
 def delete_entry(entry_id):
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
     entries_collection.delete_one({"_id": ObjectId(entry_id)})
     return jsonify({"status": "success"}), 200
-
 # save
 @app.route("/save-section", methods=["POST"])
 def save_section():
@@ -150,7 +135,6 @@ def save_section():
     section["created_at"] = section["created_at"].isoformat()
     section["entries"] = []
     return jsonify({"status": "success", "section": section}), 201
-
 @app.route("/save-entry", methods=["POST"])
 def save_entry():
     if "user" not in session:
@@ -179,14 +163,12 @@ def save_entry():
     entry["_id"] = str(result.inserted_id)
     entry["created_at"] = entry["created_at"].isoformat()
     return jsonify({"status": "success", "entry": entry}), 201
-
 # summary
 @app.route("/summary")
 def summary():
     if "user" not in session:
         return redirect("/auth")
     return render_template("summary.html", user=session["user"])
-
 @app.route("/summary-data")
 def summary_data():
     if "user" not in session:
@@ -221,12 +203,10 @@ def summary_data():
         "expense_amounts": expense_by_category.tolist()
     }
     return jsonify({"status": "success", "data": data})
-
 # homepage
 @app.route("/")
 def home():
     return render_template("homepage.html")
-
 # auth
 @app.route("/auth", methods=["GET", "POST"])
 def auth():
@@ -268,8 +248,6 @@ def auth():
                     flash("Invalid email/username or password.", "error")
         return redirect(f"/auth?form={form_type}") 
     return render_template("auth.html")
-
-
 # profile
 @app.route("/profile")
 def profile():
@@ -336,7 +314,6 @@ def delete_account():
 def logout():
     session.pop("user", None)
     return redirect("/auth")
-
 @app.context_processor
 def inject_now():
     return {"now": datetime.utcnow}
