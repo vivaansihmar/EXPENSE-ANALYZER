@@ -9,11 +9,7 @@ Features (Current):<br></br>
  -User Authentication: Secure login and registration for personalized data.<br></br>
  -Responsive Layout: Optimized for both desktop and mobile devices.<br></br>
  -Polished UI: Clean and intuitive interface for seamless user experience.<br></br>
-
-Upcoming Features<br></br>
-Planned enhancements include:<br></br>
--
- -Profile Page: Users will have access to manage their personal information and settings.<br></br>
+ -Profile Page: Users have access to manage their personal information and settings.<br></br>
  -Homepage: A welcoming landing page with summaries and quick navigation.<br></br>
  -Additional Graphs: More advanced data visualizations to provide deeper insights into expenses.<br></br>
 
