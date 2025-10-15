@@ -4,45 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Income & Expenses | Expense Manager</title>
-
-  <!-- CSS & Icons -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-
 <body class="dashboard-page">
-  <!-- HEADER -->
   <header class="main-header">
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">
     <h3>Expense Manager — Add & Organize</h3>
   </header>
-
-  <!-- MAIN CONTENT -->
   <main class="dashboard-content">
     <div class="welcome-box">
       <h2>Manage Your Finances</h2>
       <p>Add your income, expenses, and organize them by month using a calendar picker.</p>
     </div>
-
-    <!-- INCOME SECTION -->
     <div class="section-box">
       <div class="section-header">
         <h4>💰 Income Sources</h4>
       </div>
-
       <div class="add-entry-form horizontal-form">
         <input type="text" id="incomeTitle" class="form-control" placeholder="Title (e.g. Salary, Rent)">
         <input type="number" id="incomeAmount" class="form-control" placeholder="Amount" min="0" step="0.01">
         <input type="month" id="incomeDate" class="form-control">
         <button class="btn-primary" id="addIncomeBtn">Add</button>
       </div>
-
       <div id="incomeList" class="entries-list">
         <p class="no-entry-text">No income added yet.</p>
       </div>
     </div>
-
-    <!-- ADD EXPENSE SECTION -->
     <div class="auth-container" id="add-section">
       <h3 class="form-title">Create a New Expense Section</h3>
       <form id="sectionForm">
@@ -53,19 +41,13 @@
         <button type="submit" class="btn-primary">Add Section</button>
       </form>
     </div>
-
-    <!-- DYNAMIC SECTIONS -->
     <div id="sectionsContainer"></div>
-
-    <!-- ACTION BUTTON -->
     <div class="text-center mt-5">
       <a href="/summary" class="btn-card-outline view-summary-btn">
         <i class="bi bi-bar-chart-line"></i> View Summary
       </a>
     </div>
   </main>
-
-  <!-- JAVASCRIPT -->
   <script>
     const sectionForm = document.getElementById('sectionForm');
     const sectionNameInput = document.getElementById('sectionName');
@@ -74,41 +56,30 @@
     const incomeList = document.getElementById('incomeList');
     let sections = [];
     let incomeEntries = [];
-
-    // 🔹 Load data
     async function loadSections() {
       const res = await fetch("/get-sections");
       const data = await res.json();
       if (data.status === "success") sections = data.sections;
-
       const incomeRes = await fetch("/get-incomes");
       const incomeData = await incomeRes.json();
       if (incomeData.status === "success") incomeEntries = incomeData.entries;
-
       renderSections();
       renderIncomes();
-
-      // Auto-set current month
       const today = new Date();
       document.getElementById('incomeDate').value = today.toISOString().slice(0, 7);
     }
-
-    // 🔹 Add Income
     addIncomeBtn.addEventListener('click', async () => {
       const title = document.getElementById('incomeTitle').value.trim();
       const amount = parseFloat(document.getElementById('incomeAmount').value);
       const dateValue = document.getElementById('incomeDate').value;
       if (!title || isNaN(amount) || amount <= 0 || !dateValue) return alert("Enter valid income details!");
-
       const [year, monthNum] = dateValue.split("-");
       const month = new Date(year, monthNum - 1).toLocaleString('default', { month: 'long' });
-
       const res = await fetch("/save-entry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ section_id: "income_section", title, amount, type: "income", month, year })
       });
-
       const data = await res.json();
       if (data.status === "success") {
         incomeEntries.push(data.entry);
@@ -117,8 +88,6 @@
         document.getElementById('incomeAmount').value = '';
       }
     });
-
-    // 🔹 Render Incomes
     function renderIncomes() {
       if (incomeEntries.length === 0) {
         incomeList.innerHTML = "<p class='no-entry-text'>No income added yet.</p>";
@@ -134,8 +103,6 @@
         </div>
       `).join('');
     }
-
-    // 🔹 Add Section
     sectionForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = sectionNameInput.value.trim();
@@ -152,37 +119,29 @@
         sectionNameInput.value = '';
       }
     });
-
-    // 🔹 Toggle Income/Expense
     function toggleType(id) {
       const toggle = document.getElementById(`toggle-${id}`);
       const label = document.getElementById(`toggle-label-${id}`);
       toggle.classList.toggle("active");
       label.textContent = toggle.classList.contains("active") ? "Income" : "Expense";
     }
-
-    // 🔹 Add Entry to Section
     async function handleAddEntry(sectionId) {
       const titleInput = document.getElementById(`entryTitle-${sectionId}`);
       const amountInput = document.getElementById(`entryAmount-${sectionId}`);
       const dateInput = document.getElementById(`entryDate-${sectionId}`);
       const toggle = document.getElementById(`toggle-${sectionId}`);
-
       const title = titleInput.value.trim();
       const amount = parseFloat(amountInput.value);
       const dateValue = dateInput.value;
       if (!title || isNaN(amount) || amount <= 0 || !dateValue) return;
-
       const [year, monthNum] = dateValue.split("-");
       const month = new Date(year, monthNum - 1).toLocaleString('default', { month: 'long' });
       const type = toggle.classList.contains("active") ? "income" : "expense";
-
       const res = await fetch("/save-entry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ section_id: sectionId, title, amount, type, month, year })
       });
-
       const data = await res.json();
       if (data.status === "success") {
         const section = sections.find(s => s._id === sectionId);
@@ -192,16 +151,12 @@
         amountInput.value = '';
       }
     }
-
-    // 🔹 Delete Section
     async function deleteSection(id) {
       if (!confirm("Delete this section?")) return;
       await fetch(`/delete-section/${id}`, { method: "DELETE" });
       sections = sections.filter(s => s._id !== id);
       renderSections();
     }
-
-    // 🔹 Delete Entry
     async function deleteEntry(id) {
       if (!confirm("Delete this entry?")) return;
       await fetch(`/delete-entry/${id}`, { method: "DELETE" });
@@ -210,8 +165,6 @@
       renderSections();
       renderIncomes();
     }
-
-    // 🔹 Render Sections
     function renderSections() {
       sectionsContainer.innerHTML = '';
       sections.forEach(section => {
@@ -224,7 +177,6 @@
               <i class="bi bi-trash"></i>
             </button>
           </div>
-
           <div class="add-entry-form horizontal-form">
             <input type="text" id="entryTitle-${section._id}" class="form-control" placeholder="Title">
             <input type="number" id="entryAmount-${section._id}" class="form-control" placeholder="Amount" min="0" step="0.01">
@@ -235,7 +187,6 @@
             </div>
             <button class="btn-primary" type="button" onclick="handleAddEntry('${section._id}')">Add</button>
           </div>
-
           <div class="entries-list">
             ${section.entries && section.entries.length > 0
               ? section.entries.map(e => `
