@@ -250,12 +250,9 @@
           </div>
         `;
         sectionsContainer.appendChild(div);
-
-        // Set default date to current month
         document.getElementById(`entryDate-${section._id}`).value = new Date().toISOString().slice(0, 7);
       });
     }
-
     loadSections();
   </script>
 </body>
