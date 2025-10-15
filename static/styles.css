@@ -244,9 +244,7 @@ h1, h2, h3, h4, h5, h6 {
 .toggle-switch.active { background: var(--accent); }
 .toggle-switch.active::after { left: 26px; }
 .toggle-label { font: 600 0.9rem 'Poppins', sans-serif; color: var(--muted); }
-
 .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-top: 2rem; }
-
 .settings-title {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
@@ -256,7 +254,6 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 1rem;
   border-bottom: 2px solid var(--bg-1);
 }
-
 .settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
 .settings-form { display: flex; flex-direction: column; gap: 1rem; }
 .settings-form label { font: 600 0.95rem 'Poppins', sans-serif; color: var(--accent); }
@@ -281,7 +278,6 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 1000;
   border-left: 4px solid var(--accent);
 }
-
 .toast.show { transform: translateX(0); }
 .toast.error { border-left-color: #d9534f; }
 .toast.success { border-left-color: #5cb85c; }
@@ -289,7 +285,6 @@ h1, h2, h3, h4, h5, h6 {
 .toast.error i { color: #d9534f; }
 .toast.success i { color: #5cb85c; }
 .toast span { color: var(--muted); font-weight: 500; }
-
 .hidden { display: none; }
 .d-flex { display: flex; }
 .align-items-center { align-items: center; }
