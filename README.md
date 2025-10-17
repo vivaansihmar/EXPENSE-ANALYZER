@@ -1,4 +1,4 @@
-Hello , this is an expense tracking and visulaizing project called Expense-Analyzer. <br></br>Which is hosted on Render- ( https://expense-analyzer-qak0.onrender.com/auth ).<br></br>
+Hello , this is an expense tracking and visulaizing project called Expense-Analyzer. <br></br>Which is hosted on Render- ( https://expense-analyzer-qak0.onrender.com).<br></br>
 -
 Features (Current):<br></br>
 -
