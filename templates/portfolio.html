@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vivaan Sihmar - Portfolio</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='logo.ico') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='portfolio.css') }}" />
+</head>
+<body>
+  <nav id="navbar">
+    <div class="nav-container">
+      <div class="logo">Vivaan Sihmar</div>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#internships">Internships</a>
+        <a href="#projects">Projects</a>
+        <a href="#achievements">Achievements</a>
+        <a href="#certificates">Certificates</a>
+      </div>
+    </div>
+  </nav>
+
+  <section id="home" class="hero">
+    <div class="hero-content">
+      <h1>Vivaan Sihmar</h1>
+      <div class="hero-subtitle">Aspiring Data Scientist and ML Engineer</div>
+      <div class="hero-description">
+        Doing my best to make a difference in the world through data and machine learning.
+      </div>
+      <div class="social-links">
+        <a href="https://github.com/vivaansihmar" target="_blank" rel="noopener">🔗 GitHub</a>
+        <a href="https://www.linkedin.com/in/vivaansihmar" target="_blank" rel="noopener">💼 LinkedIn</a>
+        <a href="mailto:vivaansihmar@gmail.com">📧 Email</a>
+        <a href="assets/vivaan_resume.pdf" target="_blank" rel="noopener">📄 Resume</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="fade-in">
+    <h2 class="section-title">About Me</h2>
+    <div class="about-content">
+      <div class="about-text">
+        <p>I'm a passionate and aspiring Data Scientist with a keen interest in Machine Learning and Deep Learning.</p>
+        <p>I believe in writing clean, efficient code and collaborating effectively. Every project is an opportunity to push technological boundaries.</p>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-item"><h3>Frontend</h3> HTML, CSS</div>
+        <div class="skill-item"><h3>Backend</h3> Python</div>
+        <div class="skill-item"><h3>Database</h3> MongoDB, PostgreSQL, MySQL</div>
+        <div class="skill-item"><h3>Data Science</h3> R, Python</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="internships" class="fade-in">
+    <h2 class="section-title">Internships</h2>
+    <div class="internship-list">
+      <div class="internship-item">
+        <h3>DRDO-INMAS Internship</h3>
+        <span>2024</span>
+        <p>Developed an internal complaint management portal for data collection and handling.</p>
+        <a href="images/DRDOInternship.jpeg" target="_blank" rel="noopener">View Certificate</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects" class="fade-in">
+    <h2 class="section-title">Projects</h2>
+    <div class="projects-grid">
+      <div class="project-card">
+        <h3>Diabetes Prediction Model</h3>
+        <p>A prediction model using XGBoost and Random Forest (80% accuracy) built on the PIMA Indian dataset for early diabetes detection.</p>
+        <div class="project-tech">
+          <span class="tech-tag">R</span>
+          <span class="tech-tag">Python</span>
+        </div>
+        <a href="https://github.com/vivaansihmar/DiabetesPrediction.R.git" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="project-card">
+        <h3>AI Climate Bot</h3>
+        <p>A chatbot that provides real-time weather and disaster data for queries like “What is the current temperature in New York?”.</p>
+        <div class="project-tech">
+          <span class="tech-tag">Python</span>
+        </div>
+        <a href="https://github.com/vivaansihmar/Aiclimate-chatbot.git" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="project-card">
+        <h3>Complaint Web Portal (DRDO INMAS)</h3>
+        <p>Created a portal for complaint management using MongoDB and Python to efficiently store and sort data.</p>
+        <div class="project-tech">
+          <span class="tech-tag">MongoDB</span>
+          <span class="tech-tag">Python</span>
+        </div>
+        <a href="#" class="disabled" aria-disabled="true">Private Project</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="achievements" class="fade-in">
+    <h2 class="section-title">Achievements</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3>Hackathon Executive</h3>
+          <span class="timeline-date">2025</span>
+          <p>Oversaw and managed a Hackathon conducted by IETE MAIT.</p>
+          <a href="images/hackathon.jpeg" target="_blank" rel="noopener">View</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="certificates" class="fade-in">
+    <h2 class="section-title">Certificates</h2>
+    <div class="badge-grid">
+      <div class="badge">
+        <h3>Machine Learning in Python</h3>
+        <p>IBM (Coursera)</p>
+        <a href="https://coursera.org/share/1e4a646d35931c88c1b07cb60c13618c" target="_blank" rel="noopener">View</a>
+      </div>
+      <div class="badge">
+        <h3>Python for Data Science, AI & Development</h3>
+        <p>Coursera</p>
+        <a href="https://coursera.org/share/e74f34069786e95f6150e2fa03f4fc7b" target="_blank" rel="noopener">View</a>
+      </div>
+      <div class="badge">
+        <h3>Applied Data Science with R - Level 2</h3>
+        <p>IBM</p>
+        <a href="https://www.credly.com/badges/957d67e5-1f36-4de7-b530-12e5980cfc8a" target="_blank" rel="noopener">View</a>
+      </div>
+      <div class="badge">
+        <h3>Databases and SQL for Data Science</h3>
+        <p>IBM</p>
+        <a href="https://coursera.org/share/06876010b272999fdaf1aa1482addfc9" target="_blank" rel="noopener">View</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © {{ now().year }} Vivaan Sihmar — All rights reserved.
+  </footer>
+
+  <script>
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 100);
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', e => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
